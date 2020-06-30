@@ -1,4 +1,4 @@
-# Sensor readfings API Application
+# Sensor readings API Application
 
 ## Introduction
 This is a code exercise about an API application that register, retrieve and get different reading statistics depending
