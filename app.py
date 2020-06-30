@@ -4,7 +4,7 @@ import json
 
 import sqlite3
 
-from flask import Flask, render_template, request, Response, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for
 from flask.json import jsonify
 
 from config import Config
@@ -26,7 +26,6 @@ client = app.test_client
 
 # Setup the SQLite DB
 conn = sqlite3.connect('database.db')
-# conn.execute('DROP TABLE IF EXISTS readings')
 conn.execute('CREATE TABLE IF NOT EXISTS readings (device_uuid TEXT, type TEXT, value INTEGER, date_created INTEGER)')
 conn.close()
 
@@ -62,13 +61,7 @@ def ui_request_device_readings(device_uuid):
     POST Parameters:
     * type -> The type of sensor (temperature or humidity)
     * value -> The integer value of the sensor reading
-    * date_created -> The epoch date of the sensor reading.
-        If none provided, we set to now.
-
-    Optional Query Parameters:
-    * start -> The epoch start time for a sensor being created
-    * end -> The epoch end time for a sensor being created
-    * type -> The type of sensor value a client is looking for
+    * date_created -> The epoch date of the sensor reading (default now).
     """
 
     form = ReadingForm()
@@ -99,8 +92,7 @@ def ui_register_new_sensor(device_uuid):
     POST Parameters:
     * type -> The type of sensor (temperature or humidity)
     * value -> The integer value of the sensor reading
-    * date_created -> The epoch date of the sensor reading.
-        If none provided, we set to now.
+    * date_created -> The epoch date of the sensor reading (default to now).
     """
 
     conn = sqlite3.connect('database.db')
@@ -130,12 +122,12 @@ def ui_register_new_sensor(device_uuid):
 @app.route('/custom/search/', methods=['POST'])
 def ui_get_readings_by_type_or_date_range():
     """
-    This endpoint allows clients to GET sensors readings by type or date range.
+    This endpoint allows clients to GET sensors readings by type or date range (UI)
 
     Optional Query Parameters
     * type -> The type of sensor value a client is looking for
-    * start -> The epoch start time for a sensor being created
-    * end -> The epoch end time for a sensor being created
+    * start -> The epoch start time for a sensor being searched
+    * end -> The epoch end time for a sensor being searched
     """
     conn = sqlite3.connect('database.db')
     conn.row_factory = sqlite3.Row
@@ -170,18 +162,7 @@ def ui_get_readings_by_type_or_date_range():
 @app.route('/readings/<string:device_uuid>/max', methods=['GET'])
 def ui_get_readings_max(device_uuid):
     """
-    This function allows clients to POST or GET data specific sensor types (UI)
-
-    POST Parameters:
-    * type -> The type of sensor (temperature or humidity)
-    * value -> The integer value of the sensor reading
-    * date_created -> The epoch date of the sensor reading.
-        If none provided, we set to now.
-
-    Optional Query Parameters:
-    * start -> The epoch start time for a sensor being created
-    * end -> The epoch end time for a sensor being created
-    * type -> The type of sensor value a client is looking for
+    This function allows clients to GET MAX sensor reading
     """
 
     form = ReadingForm()
@@ -193,18 +174,7 @@ def ui_get_readings_max(device_uuid):
 @app.route('/readings/<string:device_uuid>/median', methods=['GET'])
 def ui_get_readings_median(device_uuid):
     """
-    This function allows clients to POST or GET data specific sensor types (UI)
-
-    POST Parameters:
-    * type -> The type of sensor (temperature or humidity)
-    * value -> The integer value of the sensor reading
-    * date_created -> The epoch date of the sensor reading.
-        If none provided, we set to now.
-
-    Optional Query Parameters:
-    * start -> The epoch start time for a sensor being created
-    * end -> The epoch end time for a sensor being created
-    * type -> The type of sensor value a client is looking for
+    This function allows clients to GET MEDIAN sensor reading
     """
 
     form = ReadingForm()
@@ -216,18 +186,7 @@ def ui_get_readings_median(device_uuid):
 @app.route('/readings/<string:device_uuid>/mean', methods=['GET'])
 def ui_get_readings_mean(device_uuid):
     """
-    This function allows clients to POST or GET data specific sensor types (UI)
-
-    POST Parameters:
-    * type -> The type of sensor (temperature or humidity)
-    * value -> The integer value of the sensor reading
-    * date_created -> The epoch date of the sensor reading.
-        If none provided, we set to now.
-
-    Optional Query Parameters:
-    * start -> The epoch start time for a sensor being created
-    * end -> The epoch end time for a sensor being created
-    * type -> The type of sensor value a client is looking for
+    This function allows clients to GET MEAN sensor reading
     """
 
     form = ReadingForm()
@@ -239,18 +198,7 @@ def ui_get_readings_mean(device_uuid):
 @app.route('/readings/<string:device_uuid>/quartiles', methods=['GET'])
 def ui_get_readings_quartiles(device_uuid):
     """
-    This function allows clients to POST or GET data specific sensor types (UI)
-
-    POST Parameters:
-    * type -> The type of sensor (temperature or humidity)
-    * value -> The integer value of the sensor reading
-    * date_created -> The epoch date of the sensor reading.
-        If none provided, we set to now.
-
-    Optional Query Parameters:
-    * start -> The epoch start time for a sensor being created
-    * end -> The epoch end time for a sensor being created
-    * type -> The type of sensor value a client is looking for
+    This function allows clients to GET 1st and 3rd quartiles of sensor readings
     """
 
     form = ReadingForm()
@@ -262,18 +210,7 @@ def ui_get_readings_quartiles(device_uuid):
 @app.route('/readings/summary', methods=['GET'])
 def ui_get_summary():
     """
-    This function allows clients to POST or GET data specific sensor types (UI)
-
-    POST Parameters:
-    * type -> The type of sensor (temperature or humidity)
-    * value -> The integer value of the sensor reading
-    * date_created -> The epoch date of the sensor reading.
-        If none provided, we set to now.
-
-    Optional Query Parameters:
-    * start -> The epoch start time for a sensor being created
-    * end -> The epoch end time for a sensor being created
-    * type -> The type of sensor value a client is looking for
+    This function allows clients GET summary of all sensors readings (with statictics)
     """
 
     form = ReadingForm()
@@ -288,18 +225,12 @@ def ui_get_summary():
 @app.route('/devices/<string:device_uuid>/readings/', methods=['POST', 'GET'])
 def request_device_readings(device_uuid):
     """
-    This endpoint allows clients to POST or GET data specific sensor types.
+    This function allows clients to POST or GET data specific sensor types
 
     POST Parameters:
     * type -> The type of sensor (temperature or humidity)
     * value -> The integer value of the sensor reading
-    * date_created -> The epoch date of the sensor reading.
-        If none provided, we set to now.
-
-    Optional Query Parameters:
-    * start -> The epoch start time for a sensor being created
-    * end -> The epoch end time for a sensor being created
-    * type -> The type of sensor value a client is looking for
+    * date_created -> The epoch date of the sensor reading (default now).
     """
 
     # Set the db that we want and open the connection
@@ -346,8 +277,8 @@ def get_readings_by_type_or_date_range(option):
 
     Optional Query Parameters
     * type -> The type of sensor value a client is looking for
-    * start -> The epoch start time for a sensor being created
-    * end -> The epoch end time for a sensor being created
+    * start -> The epoch start time for a sensor being searched
+    * end -> The epoch end time for a sensor being searched
     """
     # Set the db that we want and open the connection
     if app.config['TESTING']:
@@ -385,14 +316,7 @@ def get_readings_by_type_or_date_range(option):
 @app.route('/devices/<string:device_uuid>/readings/max/', methods=['GET'])
 def request_device_readings_max(device_uuid):
     """
-    This endpoint allows clients to GET the max sensor reading for a device.
-
-    Mandatory Query Parameters:
-    * type -> The type of sensor value a client is looking for
-
-    Optional Query Parameters
-    * start -> The epoch start time for a sensor being created
-    * end -> The epoch end time for a sensor being created
+    This function allows clients to GET MAX sensor reading
     """
 
     # Set the db that we want and open the connection
@@ -415,14 +339,7 @@ def request_device_readings_max(device_uuid):
 @app.route('/devices/<string:device_uuid>/readings/median/', methods=['GET'])
 def request_device_readings_median(device_uuid):
     """
-    This endpoint allows clients to GET the median sensor reading for a device.
-
-    Mandatory Query Parameters:
-    * type -> The type of sensor value a client is looking for
-
-    Optional Query Parameters
-    * start -> The epoch start time for a sensor being created
-    * end -> The epoch end time for a sensor being created
+    This function allows clients to GET MEDIAN sensor reading
     """
 
     # Set the db that we want and open the connection
@@ -455,14 +372,7 @@ def request_device_readings_median(device_uuid):
 @app.route('/devices/<string:device_uuid>/readings/mean/', methods = ['GET'])
 def request_device_readings_mean(device_uuid):
     """
-    This endpoint allows clients to GET the mean sensor readings for a device.
-
-    Mandatory Query Parameters:
-    * type -> The type of sensor value a client is looking for
-
-    Optional Query Parameters
-    * start -> The epoch start time for a sensor being created
-    * end -> The epoch end time for a sensor being created
+    This function allows clients to GET MEAN sensor reading
     """
 
     # Set the db that we want and open the connection
@@ -493,13 +403,7 @@ def request_device_readings_mean(device_uuid):
 @app.route('/devices/<string:device_uuid>/readings/quartiles/', methods=['GET'])
 def request_device_readings_quartiles(device_uuid):
     """
-    This endpoint allows clients to GET the 1st and 3rd quartile
-    sensor reading value for a device.
-
-    Mandatory Query Parameters:
-    * type -> The type of sensor value a client is looking for
-    * start -> The epoch start time for a sensor being created
-    * end -> The epoch end time for a sensor being created
+    This function allows clients to GET 1st and 3rd quartiles of sensor readings
     """
 
     # Set the db that we want and open the connection
@@ -533,11 +437,6 @@ def request_readings_summary():
     """
     This endpoint allows clients to GET a full summary
     of all sensor data in the database per device.
-
-    Optional Query Parameters
-    * type -> The type of sensor value a client is looking for
-    * start -> The epoch start time for a sensor being created
-    * end -> The epoch end time for a sensor being created
     """
 
     # Set the db that we want and open the connection

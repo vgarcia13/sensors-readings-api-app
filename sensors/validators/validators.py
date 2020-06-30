@@ -1,11 +1,11 @@
-__author__ = 'vgarcia'
-
 TEMPERATURE = 'temperature'
 HUMIDITY = 'humidity'
 
 READINGS_TYPES = [TEMPERATURE, HUMIDITY]
 READINGS_TYPES_ERRORS = ['NOT_VALID_TYPE', 'READING_OUT_OF_RANGE']
 CUSTOM_SEARCH_ERRORS = ['NOT_VALID_SEARCHING_TYPE']
+
+__author__ = 'vgarcia'
 
 
 def reading_is_valid(type, value):

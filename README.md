@@ -1,96 +1,164 @@
-# Umba Backend Homework Assignment
+# Sensor readfings API Application
 
 ## Introduction
-Imagine a system where hundreds of thousands of hardware devices are concurrently uploading temperature and humidity sensor data.
+This is a code exercise about an API application that register, retrieve and get different reading statistics depending
+of a certain device UUID, search parameters (type or date range) and a general summary endpoint.
 
-The API to facilitate this system accepts creation of sensor records, in addition to retrieval.
+## API Documentation
+The complete endpoints list of the APi app:
 
-These `GET` and `POST` requests can be made at `/devices/<uuid>/readings/`.
+1.  `/devices/<device_uuid>/readings/', methods=['POST', 'GET']`
+        
+    This endpoint can register a new sensor reading or retrieve sensor readings
 
-Retrieval of sensor data should return a list of sensor values such as:
-
-```
-    [{
-        'date_created': <int>,
-        'device_uuid': <uuid>,
-        'type': <string>,
-        'value': <int>
-    }]
-```
-
-The API supports optionally querying by sensor type, in addition to a date range.
-
-A client can also access metrics such as the max, median and mean over a time range.
-
-These metric requests can be made by a `GET` request to `/devices/<uuid>/readings/<metric>/`
-
-When requesting max or median, a single sensor reading dictionary should be returned as seen above.
-
-When requesting the mean, the response should be:
-
-```
-    {
-        'value': <mean>
-    }
-```
-
-The API also supports the retrieval of the 1st and 3rd quartile over a specific date range.
-
-This request can be made via a `GET` to `/devices/<uuid>/readings/quartiles/` and should return
-
-```
-    {
-        'quartile_1': <int>,
-        'quartile_3': <int>
-    }
-```
-
-Finally, the API supports a summary endpoint for all devices and readings. When making a `GET` request to this endpoint, we should receive a list of summaries as defined below, where each summary is sorted in descending order by number of readings per device.
-
-```
-    [
+    Test request (POST):
+    
         {
-            'device_uuid':<uuid>,
-            'number_of_readings': <int>,
-            'max_reading_value': <int>,
-            'median_reading_value': <int>,
-            'mean_reading_value': <int>,
-            'quartile_1_value': <int>,
-            'quartile_3_value': <int>
+            "type": "temperature",
+            "value": "98",
+            "date_created": 1593550061
+        }
+    Response:
+    
+        {
+            "date_created": 1593543759,
+            "device_uuid": "44875d62-bb04-11ea-be83-a886dd916590",
+            "type": "temperature",
+            "value": 14
+        }
+
+2.  `/custom/search/<option>', methods=['POST']`
+
+    This endpoint allows custom readings search (by type [temperature, humidity] or by date range [start date, end date])
+    
+    AVAILABLE SEARCH PARAMETERS (OPTION URL PARAMETER): 
+    
+    - `type` for reading type (temperature, humidity)
+    - `range` for date range (start date, end date) 
+    
+    Test request (POST):
+    
+        {
+            "type": "temperature",
+            "start_date": "",
+            "end_date": ""
+        }
+        
+        {
+            "type": "",
+            "start_date": "01/06/2020",
+            "end_date": "30/06/2020"
+        }
+    Response:
+    
+        {
+            "date_created": 1593543759,
+            "device_uuid": "44875d62-bb04-11ea-be83-a886dd916590",
+            "type": "temperature",
+            "value": 14
+        }
+    
+3.  `/devices/<device_uuid>/readings/max/', methods=['GET']`
+
+    This endpoint returns the MAX reading of a specific device_UUID`
+    
+    Response (GET):
+    
+        {
+            "date_created": 1593550061,
+            "device_uuid": "44875d62-bb04-11ea-be83-a886dd916590",
+            "type": "temperature",
+            "value": 98
+        }
+
+4.  `/devices/<device_uuid>/readings/median/', methods=['GET']`
+
+    This endpoint returns the MEDIAN reading of a specific device_UUID
+    
+    Response (GET):
+    
+        {
+            "date_created": 1593543804,
+            "device_uuid": "44875d62-bb04-11ea-be83-a886dd916590",
+            "type": "humidity",
+            "value": 52
+        }
+
+5.  `/devices/<device_uuid>/readings/mean/', methods=['GET']`
+
+    This endpoint returns the MEAN reading of a specific device_UUID
+    
+    Response (GET):
+    
+        {
+            "value": 44
+        }
+        
+6. `/devices/<device_uuid>/readings/quartiles/', methods=['GET']`
+
+    This endpoint returns the 1st and 3rd quartiles of a specific device_UUID readings 
+    
+    Response (GET):
+    
+        {
+            "quartile_1": 13.5,
+            "quartile_3": 63.5
+        }
+        
+7.  `/summary/', methods=['GET']`
+
+    This endpoint returns the a summary of all sensors registered, with statistics and general info
+    
+    Response (GET):
+    
+        {
+            "device_uuid": "44875d62-bb04-11ea-be83-a886dd916590",
+            "max_reading_value": 98,
+            "mean_reading_value": 44,
+            "median_reading_value": 52,
+            "number_of_readings": 4,
+            "quartile_1_value": 13.5,
+            "quartile_3_value": 63.5
         },
+        {
+            "device_uuid": "471d9000-bb04-11ea-82af-a886dd916590",
+            "max_reading_value": 99,
+            "mean_reading_value": 77.33333333333333,
+            "median_reading_value": 88,
+            "number_of_readings": 3,
+            "quartile_1_value": 66.5,
+            "quartile_3_value": 93.5
+        }
 
-        ... additional device summaries
-    ]
-```
 
-The API is backed by a SQLite database.
+## User UI
+There is an user interface that interacts with this API, made with ``Flask`` ``HTML5`` and `Bootstrap 4`
 
-## Getting Started
-This service requires Python3. To get started, create a virtual environment using Python3.
-
-Then, install the requirements using `pip install -r requirements.txt`.
-
-Finally, run the API via `python app.py`.
+To access this interface, go to the project root `/` (With a valid `Python3.6.7` or above virtual env and a `Flask` server configured)
 
 ## Testing
-Tests can be run via `pytest -v`.
+Tests can be run via `pytest -v`
 
-## Tasks
-Your task is to fork this repo and complete the following:
+## How was designed and implemented?
 
-- [ ] Add field validation. Only *temperature* and *humidity* sensors are allowed with values between *0* and *100*.
-- [ ] Add logic for query parameters for *type* and *start/end* dates.
-- [ ] Implementation
-  - [ ] The max, median and mean endpoints.
-  - [ ] The quartiles endpoint with start/end parameters
-  - [ ] Add the path for the summary endpoint
-  - [ ] Complete the logic for the summary endpoint
-- [ ] Tests
-  - [ ] Wrap up the stubbed out unit tests with your changes
-  - [ ] Add tests for the new summary endpoint
-  - [ ] Add unit tests for any missing error cases
-- [ ] README
-  - [ ] Explain any design decisions you made and why.
-  - [ ] Imagine you're building the roadmap for this project over the next quarter. What features or updates would you suggest that we prioritize?
+I decided to design and implement an user interface because I really think there is too much value in an API app if the results
+are shown and being used in a running app, and also to practice my full-stack skills
 
-When you're finished, send your git repo link to engineering@umba.com. If you have any questions, please do not hesitate to reach out!
+The endpoints are very clear to understand and the comments inside every function help any developer to change and improve this project
+
+The entire API app can be tested in `Postman` or any other API tester
+
+I would prioritize the way the sensors are configured and protected, because there can be some issues working with 
+hardware devices that deliver data to a software. 
+
+Afterwards I would ensure the API to always get the data from a known source, in order to treat and deliver trusting info,
+adding some web tokens, authorizations headers inside request or a login stage
+
+## About the author
+Mechatronics engineer graduated from Universidad Iberoamericana, with more than 6 years of experience in IT and programming in general (web, mobile). 
+
+Advanced english (IELTS and EF Standard English Test certified), experience with international teams and managing small developing teams
+
+LinkedIn Page: https://www.linkedin.com/in/victor-hugo-garcia-202b1b99/
+
+&copy; Copyright 2020
