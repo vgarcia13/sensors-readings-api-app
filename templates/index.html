@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="mt-5 col-lg-12 text-center">
+        <h1>Current Sensors</h1><br><br>
+        {% if sensors.json|length > 0  %}
+            <ul class="list-group" style="margin: auto">
+            {% for sensor in sensors.json %}
+                <li class="list-group-item">Device: <a href="{{ url_for('ui_request_device_readings', device_uuid=sensor.device_uuid) }}">{{ sensor.device_uuid }}</a> </li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <h5>No data</h5>
+        {% endif %}
+        <button type="button" class="btn btn-primary btn-large mt-5 mb-5" style="color: white" id="newSensor">&nbsp;&nbsp;Register new sensor&nbsp;&nbsp;</button>
+        <button type="button" class="btn btn-primary btn-large mt-5 mb-5" style="color: white" id="customSearch">&nbsp;&nbsp;Custom search&nbsp;&nbsp;</button><br>
+        <a class="btn btn-primary btn-large mb-5" style="color: white" href="{{ url_for('ui_get_summary') }}">Get summary</a>
+        <div style="display: none;margin: auto;" id="sensorForm">
+            <form method="POST" action="{{ url_for('ui_register_new_sensor', device_uuid=form.device_uuid.data) }}">
+                <div class="hero-unit" style="background-color: #eeeeee;padding: 20px;border-radius: 6px;">
+                    {% if request.args.get('error') != None  %}
+                        <div class="alert alert-danger" role="alert">
+                          {{ request.args.get('error') }}
+                        </div>
+                    {% endif %}
+                    {{ form.csrf_token }}
+                    {{ form.date_created(style="display: none;") }}
+                    {{ form.device_uuid.label }} <p>{{ form.device_uuid.data }}</p>
+                    {{ form.device_uuid(style="display: none;") }}
+                    {{ form.type.label }}<br>
+                    {{ form.type(class_="form-control col-6 text-center", style="margin: auto;") }}<br>
+                    {{ form.value.label }}<br>
+                    {{ form.value(class_="form-control col-6 text-center", style="margin: auto;") }}<br>
+                    {{ form.submit(class_="btn btn-primary btn-large") }}<br>
+                </div>
+            </form>
+        </div>
+        <div style="display: none;margin: auto;" id="customSearchForm">
+            <form method="POST" action="{{ url_for('ui_get_readings_by_type_or_date_range') }}">
+                {{ custom_search_form.csrf_token }}
+                <div class="hero-unit" style="background-color: #eeeeee;padding: 20px;border-radius: 6px;">
+                    {% if request.args.get('custom_search_error') != None  %}
+                        <div class="alert alert-danger" role="alert">
+                          {{ request.args.get('custom_search_error') }}
+                        </div>
+                    {% endif %}
+                    {{ custom_search_form.available_types.label }}<br>
+                    {{ custom_search_form.available_types(class_="form-control col-6 text-center", style="margin: auto;") }}
+                    <hr/>
+                    <div style="margin: auto;" id="typeFields">
+                        <br>
+                        {{ custom_search_form.type.label }}<br>
+                        {{ custom_search_form.type(class_="form-control col-6 text-center", style="margin: auto;") }}<br>
+                    </div>
+                    <div style="display: none;margin: auto;" id="dateRangeFields">
+                        <br>
+                        {{ custom_search_form.start_date.label }}<br>
+                        {{ custom_search_form.start_date(class_="datepicker form-control col-6 text-center", style="margin: auto;") }}<br>
+                        {{ custom_search_form.end_date.label }}<br>
+                        {{ custom_search_form.end_date(class_="datepicker form-control col-6 text-center", style="margin: auto;") }}<br>
+                    </div>
+                    {{ custom_search_form.submit(class_="btn btn-primary btn-large") }}<br>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script>
+        $( ".datepicker" ).datepicker({
+            dateFormat: 'dd/mm/yy',
+            maxDate: '0'
+        });
+
+        var isOpen_sensorForm = false
+        var isOpen_customSearch = false
+        $("#newSensor").on('click',function(){
+            if (!isOpen_sensorForm)
+            {
+                isOpen_sensorForm = true
+                isOpen_customSearch = false
+                $("#customSearchForm").slideUp(500);
+                $("#sensorForm").slideDown(500);
+            }
+            else{
+                isOpen_sensorForm = false
+                isOpen_customSearch = false
+                $("#customSearchForm").slideUp(500);
+                $("#sensorForm").slideUp(500);
+            }
+        });
+        $("#customSearch").on('click',function(){
+            if (!isOpen_customSearch)
+            {
+                isOpen_customSearch = true
+                isOpen_sensorForm = false
+                $("#sensorForm").slideUp(500);
+                $("#customSearchForm").slideDown(500);
+            }
+            else{
+                isOpen_customSearch = false
+                isOpen_sensorForm = false
+                $("#sensorForm").slideUp(500);
+                $("#customSearchForm").slideUp(500);
+            }
+        });
+        $("#available_types").on('change', function() {
+            if(this.value === '0') {
+                $("#dateRangeFields").slideUp(500);
+                $("#typeFields").slideDown(500);
+            }
+            else {
+                $("#typeFields").slideUp(500);
+                $("#dateRangeFields").slideDown(500);
+            }
+        });
+    </script>
+{% endblock %}

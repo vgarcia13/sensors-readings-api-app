@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="mt-5 col-lg-12 text-center">
+        <h1>{{ selected_search}}</h1><br><br>
+        <div class="hero-unit" style="background-color: #eeeeee;padding: 20px;border-radius: 6px;text-align: left">
+            <code><pre id="json"></pre></code>
+        </div>
+        <a class="btn btn-primary btn-large mt-5 mb-5" style="color: white" href="{{ url_for('index') }}">New search</a>
+    </div>
+{% endblock %}
+{% block js %}
+    <script>
+        var data = JSON.parse('{{ sensors.json| tojson | safe }}');
+        document.getElementById("json").textContent = JSON.stringify(data, null, '\t');
+    </script>
+{% endblock %}

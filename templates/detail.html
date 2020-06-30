@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="mt-5 col-lg-12 text-center">
+        <h1>{{ device_uuid }}</h1><br><br>
+        <div class="hero-unit" style="background-color: #eeeeee;padding: 20px;border-radius: 6px;text-align: left">
+            <code><pre id="json"></pre></code>
+        </div>
+        {% if device_uuid != 'Summary' %}
+            <button type="button" class="btn btn-primary btn-large mt-5 mb-5" style="color: white" id="newReading">&nbsp;&nbsp;New reading&nbsp;&nbsp;</button><br>
+            <a class="btn btn-primary btn-large mb-5" style="color: white" href="{{ url_for('ui_get_readings_max', device_uuid=device_uuid) }}">Get max</a>
+            <a class="btn btn-primary btn-large mb-5" style="color: white" href="{{ url_for('ui_get_readings_median', device_uuid=device_uuid) }}">Get median</a>
+            <a class="btn btn-primary btn-large mb-5" style="color: white" href="{{ url_for('ui_get_readings_mean', device_uuid=device_uuid) }}">Get mean</a>
+            <a class="btn btn-primary btn-large mb-5" style="color: white" href="{{ url_for('ui_get_readings_quartiles', device_uuid=device_uuid) }}">Get quartiles</a>
+            <div style="display: none;margin: auto;" id="newReadingForm">
+                <form method="POST" action="{{ url_for('ui_request_device_readings', device_uuid=device_uuid) }}">
+                    <div class="hero-unit" style="background-color: #eeeeee;padding: 20px;border-radius: 6px;">
+                        {% if request.args.get('error') != None  %}
+                            <div class="alert alert-danger" role="alert">
+                              {{ request.args.get('error') }}
+                            </div>
+                        {% endif %}
+                        {{ form.csrf_token }}
+                        {{ form.date_created(style="display: none;") }}
+                        {{ form.type.label }}<br>
+                        {{ form.type(class_="form-control col-6 text-center", style="margin: auto;") }}<br>
+                        {{ form.value.label }}<br>
+                        {{ form.value(class_="form-control col-6 text-center", style="margin: auto;") }}<br>
+                        {{ form.submit(class_="btn btn-primary btn-large") }}<br>
+                    </div>
+                </form>
+            </div>
+        {% endif %}
+        <br>
+        <a class="btn btn-primary btn-large mb-5" style="color: white" href="{{ url_for('index') }}">Back</a>
+    </div>
+{% endblock %}
+{% block js %}
+    <script>
+        var data = JSON.parse('{{ sensors.json| tojson | safe }}');
+        document.getElementById("json").textContent = JSON.stringify(data, null, '\t');
+
+        var isOpen_newReading = false
+
+        $("#newReading").on('click',function(){
+            if (!isOpen_newReading)
+            {
+                isOpen_newReading = true
+                $("#newReadingForm").slideDown(500);
+            }
+            else{
+                isOpen_newReading = false
+                $("#newReadingForm").slideUp(500);
+            }
+        });
+    </script>
+{% endblock %}
