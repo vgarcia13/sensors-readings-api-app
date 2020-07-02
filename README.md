@@ -130,11 +130,22 @@ The complete endpoints list of the APi app:
             "quartile_3_value": 93.5
         }
 
+## Installation
+
+1. Clone this repo
+2. Create a new virtual environment (with `Python3.6.7` preferred or above) and active it
+3. Run (with virtual env activated) `pip install -r requirements.txt` (to install project's dependencies)
+4. Configure a valid Flask server
+5. Run the project
 
 ## User UI
 There is an user interface that interacts with this API, made with ``Flask`` ``HTML5`` and `Bootstrap 4`
 
-To access this interface, go to the project root `/` (With a valid `Python3.6.7` or above virtual env and a `Flask` server configured)
+To access this interface, go to the project root `/` in your browser (`Flask` server running)
+
+or 
+
+[Use the live demo here](https://vgarcia-sensors-reads-api-app.herokuapp.com/)
 
 ## Testing
 Tests can be run via `pytest -v`
@@ -159,6 +170,9 @@ Mechatronics engineer graduated from Universidad Iberoamericana, with more than 
 
 Advanced english (IELTS and EF Standard English Test certified), experience with international teams and managing small developing teams
 
+More information:
+
 LinkedIn Page: https://www.linkedin.com/in/victor-hugo-garcia-202b1b99/
+
 
 &copy; Copyright 2020
