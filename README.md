@@ -46,8 +46,8 @@ The complete endpoints list of the APi app:
         
         {
             "type": "",
-            "start_date": "01/06/2020",
-            "end_date": "30/06/2020"
+            "start_date": 1593543759,
+            "end_date": 1593550061
         }
     Response:
     
